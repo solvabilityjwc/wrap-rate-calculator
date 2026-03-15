@@ -4,489 +4,169 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Solvability Wrap Rate Calculator</title>
-
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --navy:    #0f1f3d;
-    --teal:    #1a8a8a;
-    --teal-l:  #2ab5b5;
-    --teal-bg: #e8f4f4;
-    --silver:  #a8b8cc;
-    --cream:   #f5f3ef;
-    --dark:    #1a2535;
-    --mid:     #4a5568;
-    --light:   #e2e8f0;
+    --navy: #0f1f3d; --teal: #1a8a8a; --teal-l: #2ab5b5;
+    --teal-bg: #e8f4f4; --silver: #a8b8cc; --cream: #f5f3ef;
+    --dark: #1a2535; --mid: #4a5568; --light: #e2e8f0; --white: #ffffff;
   }
+  body { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--cream); color: var(--dark); min-height: 100vh; padding: 1.5rem 1rem 3rem; }
+  .page { max-width: 600px; margin: 0 auto; }
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
+  .logo-bar { width: 28px; height: 3px; background: var(--teal); border-radius: 2px; }
+  .logo-text { font-weight: 500; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); }
+  .title { font-family: Georgia, serif; font-size: clamp(1.4rem, 5vw, 2rem); color: var(--navy); line-height: 1.2; margin-bottom: 0.4rem; }
+  .subtitle { font-size: 13px; color: var(--mid); line-height: 1.6; margin-bottom: 1.5rem; }
+  .card { background: var(--white); border-radius: 14px; border: 1px solid var(--light); overflow: hidden; margin-bottom: 1rem; }
+  .card-header { background: var(--navy); padding: 0.85rem 1.25rem; }
+  .card-header-title { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--silver); }
+  .card-header-hint { font-size: 11px; color: var(--teal-l); font-style: italic; margin-top: 2px; }
 
-  body {
-    font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
-    background: var(--cream);
-    color: var(--dark);
-    min-height: 100vh;
-    padding: 2rem 1rem;
-  }
-
-  .page {
-    max-width: 680px;
-    margin: 0 auto;
-  }
-
-  /* Header */
-  .header {
-    margin-bottom: 2rem;
-    animation: fadeUp 0.5s ease both;
-  }
-
-  .logo-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 1.2rem;
-  }
-
-  .logo-bar {
-    width: 32px;
-    height: 3px;
-    background: var(--teal);
-    border-radius: 2px;
-  }
-
-  .logo-text {
-    font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
-    font-weight: 500;
-    font-size: 13px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--teal);
-  }
-
-  .title {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: clamp(1.6rem, 4vw, 2.2rem);
-    color: var(--navy);
-    line-height: 1.2;
-    margin-bottom: 0.5rem;
-  }
-
-  .subtitle {
-    font-size: 14px;
-    color: var(--mid);
-    line-height: 1.6;
-    max-width: 520px;
-  }
-
-  /* Card */
-  .card {
-    background: #fff;
-    border-radius: 16px;
-    border: 1px solid var(--light);
-    overflow: hidden;
-    animation: fadeUp 0.5s 0.1s ease both;
-  }
-
-  .card-header {
-    background: var(--navy);
-    padding: 1rem 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .card-header-title {
-    font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--silver);
-  }
-
-  .card-header-hint {
-    font-size: 11px;
-    color: var(--teal-l);
-    font-style: italic;
-  }
-
-  /* Table */
-  .calc-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .calc-table thead tr {
-    background: var(--teal-bg);
-    border-bottom: 1px solid var(--light);
-  }
-
-  .calc-table thead th {
-    padding: 0.6rem 1.2rem;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--teal);
-    text-align: left;
-  }
-
-  .calc-table thead th:nth-child(3),
-  .calc-table thead th:nth-child(4) { text-align: right; }
-
-  .calc-table tbody tr {
-    border-bottom: 1px solid var(--light);
-    transition: background 0.15s;
-  }
-
-  .calc-table tbody tr:hover { background: #fafaf9; }
-
-  .calc-table tbody tr.subtotal-row {
-    background: var(--teal-bg);
-    border-bottom: 2px solid var(--teal);
-  }
-
-  .calc-table tbody tr.total-row {
-    background: var(--navy);
-  }
-
-  .calc-table td {
-    padding: 0.75rem 1.2rem;
-    font-size: 13px;
-    vertical-align: middle;
-  }
-
-  .code-cell {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--teal);
-    width: 52px;
-  }
-
-  .name-cell {
-    color: var(--dark);
-    font-size: 13px;
-  }
-
-  .name-sub {
-    font-size: 11px;
-    color: var(--mid);
-    margin-top: 2px;
-  }
-
-  .rate-cell {
-    text-align: right;
-    width: 110px;
-  }
-
-  .value-cell {
-    text-align: right;
-    width: 120px;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--dark);
-  }
-
-  /* Inputs */
-  .rate-input-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 3px;
-  }
-
+  /* Desktop table layout */
+  .calc-table { width: 100%; border-collapse: collapse; }
+  .calc-table .row-head { background: var(--teal-bg); }
+  .calc-table .row-head th { padding: 0.5rem 0.75rem; font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal); text-align: left; }
+  .calc-table .row-head th:last-child { text-align: right; }
+  .calc-table .row-head th.th-rate { text-align: right; }
+  .calc-table tr { border-bottom: 1px solid var(--light); }
+  .calc-table tr:last-child { border-bottom: none; }
+  .calc-table td { padding: 0.75rem 0.75rem; vertical-align: middle; }
+  .td-code { font-family: 'Courier New', monospace; font-size: 11px; font-weight: 500; color: var(--teal); width: 52px; padding-left: 1rem !important; }
+  .td-name { font-size: 13px; color: var(--dark); }
+  .td-name-sub { font-size: 11px; color: var(--mid); margin-top: 2px; }
+  .td-rate { width: 130px; padding-right: 0.5rem !important; }
+  .td-amount { font-family: 'Courier New', monospace; font-size: 13px; font-weight: 500; color: var(--dark); text-align: right; width: 110px; padding-right: 1rem !important; }
+  .input-wrap { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
   input[type="number"] {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--dark);
-    background: transparent;
-    border: none;
-    border-bottom: 1.5px solid var(--light);
-    padding: 2px 4px;
-    text-align: right;
-    outline: none;
-    transition: border-color 0.2s;
-    -moz-appearance: textfield;
+    font-family: 'Courier New', monospace; font-size: 14px; font-weight: 500; color: var(--dark);
+    background: var(--white); border: 1.5px solid var(--light); border-radius: 6px;
+    padding: 7px 8px; text-align: right; outline: none; width: 100%;
+    -moz-appearance: textfield; min-height: 42px; touch-action: manipulation;
   }
-
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  input[type="number"]:focus { border-color: var(--teal); }
+  input.dl-input { font-size: 15px; }
+  .pct-sym { font-family: 'Courier New', monospace; font-size: 12px; color: var(--mid); flex-shrink: 0; }
+  .row-subtotal { background: var(--teal-bg) !important; border-bottom: 2px solid var(--teal) !important; }
+  .row-subtotal .td-code { color: var(--teal); }
+  .row-subtotal .td-name { font-weight: 500; color: var(--navy); }
+  .row-subtotal .td-amount { color: var(--navy); font-size: 14px; }
+  .row-total { background: var(--navy) !important; }
+  .row-total .td-code { color: var(--teal-l); }
+  .row-total .td-name { color: var(--white); font-weight: 500; }
+  .row-total .td-name-sub { color: var(--silver); }
+  .row-total .td-amount { color: var(--teal-l); font-size: 15px; }
+  .mult-banner { background: var(--teal-bg); border-top: 1px solid var(--light); padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+  .mult-label { font-size: 11px; color: var(--mid); letter-spacing: 0.04em; text-transform: uppercase; }
+  .mult-value { font-family: 'Courier New', monospace; font-size: 24px; font-weight: 500; color: var(--navy); }
+  .mult-explain { font-size: 12px; color: var(--teal); font-style: italic; }
+  .instructions { background: var(--white); border-radius: 14px; border: 1px solid var(--light); padding: 1.2rem 1.25rem; margin-bottom: 1rem; }
+  .instructions h3 { font-family: Georgia, serif; font-size: 15px; color: var(--navy); margin-bottom: 0.6rem; }
+  .instructions ol { padding-left: 1.2rem; color: var(--mid); font-size: 13px; line-height: 1.9; }
+  .footer { text-align: center; font-size: 12px; color: var(--silver); }
+  .footer a { color: var(--teal); text-decoration: none; }
 
-  input[type="number"]:focus {
-    border-bottom-color: var(--teal);
-  }
-
-  input.dl-input {
-    width: 90px;
-    font-size: 14px;
-  }
-
-  input.rate-pct {
-    width: 60px;
-  }
-
-  .pct-sym {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 12px;
-    color: var(--mid);
-  }
-
-  /* Subtotal row styles */
-  .subtotal-row .code-cell { color: var(--teal); }
-  .subtotal-row .name-cell { color: var(--navy); font-weight: 500; }
-  .subtotal-row .value-cell { color: var(--navy); font-size: 14px; }
-
-  /* Total row styles */
-  .total-row .code-cell {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 11px;
-    color: var(--teal-l);
-  }
-  .total-row .name-cell { color: #fff; font-weight: 500; }
-  .total-row .value-cell {
-    color: var(--teal-l);
-    font-size: 15px;
-  }
-
-  /* Multiplier banner */
-  .multiplier-banner {
-    background: var(--teal-bg);
-    border-top: 1px solid var(--light);
-    padding: 0.9rem 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .mult-label {
-    font-size: 12px;
-    color: var(--mid);
-    letter-spacing: 0.03em;
-  }
-
-  .mult-value {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 22px;
-    font-weight: 500;
-    color: var(--navy);
-  }
-
-  .mult-explain {
-    font-size: 12px;
-    color: var(--teal);
-    font-style: italic;
-  }
-
-  /* Instructions */
-  .instructions {
-    margin-top: 1.5rem;
-    background: #fff;
-    border-radius: 12px;
-    border: 1px solid var(--light);
-    padding: 1.2rem 1.5rem;
-    animation: fadeUp 0.5s 0.2s ease both;
-  }
-
-  .instructions h3 {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 15px;
-    color: var(--navy);
-    margin-bottom: 0.7rem;
-  }
-
-  .instructions ol {
-    padding-left: 1.2rem;
-    color: var(--mid);
-    font-size: 13px;
-    line-height: 1.8;
-  }
-
-  .instructions ol li { margin-bottom: 0.2rem; }
-
-  /* Footer */
-  .footer {
-    margin-top: 1.5rem;
-    text-align: center;
-    font-size: 12px;
-    color: var(--silver);
-    animation: fadeUp 0.5s 0.3s ease both;
-  }
-
-  .footer a {
-    color: var(--teal);
-    text-decoration: none;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  @media (max-width: 600px) {
-    body { padding: 1rem 0.5rem; }
-    .calc-table thead th:nth-child(3) { display: none; }
-    .calc-table td.rate-cell { display: none; }
+  /* Mobile: stack rate input below the label */
+  @media (max-width: 520px) {
     .card-header-hint { display: none; }
-    .calc-table td { padding: 0.6rem 0.6rem; }
-    .calc-table thead th { padding: 0.5rem 0.6rem; }
-    .code-cell { width: 36px; font-size: 10px; }
-    .name-cell { font-size: 12px; }
-    .name-sub { font-size: 10px; }
-    .value-cell { width: 90px; font-size: 12px; }
-    input.dl-input { width: 72px; font-size: 12px; }
-    .multiplier-banner { flex-direction: column; align-items: flex-start; gap: 0.4rem; padding: 0.75rem 1rem; }
-    .mult-value { font-size: 18px; }
-    .title { font-size: 1.4rem; }
-    .subtitle { font-size: 13px; }
-    .card-header { padding: 0.75rem 1rem; }
-    .instructions { padding: 1rem; }
-    .instructions ol { font-size: 12px; }
-    .multiplier-banner { text-align: left; }
-    .mult-explain { font-size: 11px; }
+    .calc-table .row-head { display: none; }
+    .calc-table tr { display: block; padding: 0.75rem 1rem; border-bottom: 1px solid var(--light); }
+    .calc-table tr:last-child { border-bottom: none; }
+    .calc-table td { display: inline-block; padding: 0 !important; border: none; }
+    .td-code { display: inline-block; font-size: 11px; margin-right: 6px; padding-left: 0 !important; vertical-align: middle; }
+    .td-name { display: inline-block; font-size: 13px; vertical-align: middle; }
+    .td-name-sub { font-size: 11px; }
+    /* Rate and amount on second line */
+    .td-rate { display: block !important; width: 100%; margin-top: 8px; padding: 0 !important; }
+    .td-amount { display: block !important; width: 100%; text-align: left !important; margin-top: 6px; padding: 0 !important; font-size: 15px; }
+    /* For rows without rate input, show amount inline */
+    .no-rate .td-amount { display: inline-block !important; width: auto; margin-top: 0; margin-left: 8px; vertical-align: middle; font-size: 14px; }
+    .input-wrap { justify-content: flex-start; }
+    input[type="number"] { font-size: 16px; min-height: 48px; }
+    .mult-banner { flex-direction: column; align-items: flex-start; }
+    .mult-value { font-size: 20px; }
+    .row-subtotal td, .row-total td { display: inline !important; }
+    .row-subtotal .td-name-sub, .row-total .td-name-sub { display: block; }
+    .row-subtotal .td-amount, .row-total .td-amount { float: right; margin-top: -1.4rem; }
   }
 </style>
 </head>
 <body>
 <div class="page">
-
-  <div class="header">
-    <div class="logo-row">
-      <div class="logo-bar"></div>
-      <span class="logo-text">Solvability LLC</span>
-    </div>
-    <h1 class="title">Wrap Rate Calculator</h1>
-    <p class="subtitle">Enter $1.00 under Direct Labor to calculate your multiplier. Then replace $1.00 with your actual hourly rate to see your billing rate to the government.</p>
+  <div class="logo-row">
+    <div class="logo-bar"></div>
+    <span class="logo-text">Solvability LLC</span>
   </div>
+  <h1 class="title">Wrap Rate Calculator</h1>
+  <p class="subtitle">Enter 1.0000 under Direct Labor to calculate your multiplier. Then replace 1.0000 with your actual hourly rate to see your Billing Rate to the Government.</p>
 
   <div class="card">
     <div class="card-header">
-      <span class="card-header-title">GovCon Indirect Rate Stack</span>
-      <span class="card-header-hint">Start with DL = 1.0000 to find your multiplier</span>
+      <div class="card-header-title">GovCon Indirect Rate Stack</div>
+      <div class="card-header-hint">Start with DL = 1.0000 to find your multiplier</div>
     </div>
-
     <table class="calc-table">
       <thead>
-        <tr>
-          <th>Code</th>
-          <th>Description</th>
-          <th>Rate</th>
-          <th>Amount</th>
+        <tr class="row-head">
+          <th class="td-code">Code</th>
+          <th class="td-name">Description</th>
+          <th class="th-rate td-rate">Rate</th>
+          <th class="td-amount">Amount</th>
         </tr>
       </thead>
       <tbody>
-
-        <!-- DL -->
+        <tr class="no-rate">
+          <td class="td-code">DL</td>
+          <td class="td-name">Direct Labor<div class="td-name-sub">Base hourly wage</div></td>
+          <td class="td-rate"></td>
+          <td class="td-amount"><input type="number" class="dl-input" id="dl" value="1" min="0" step="0.01" inputmode="decimal" oninput="calc()"></td>
+        </tr>
         <tr>
-          <td class="code-cell">DL</td>
-          <td class="name-cell">
-            Direct Labor
-            <div class="name-sub">Base hourly wage</div>
-          </td>
-          <td class="rate-cell"></td>
-          <td class="value-cell">
-            <input type="number" class="dl-input" id="dl" value="1" min="0" step="0.01" oninput="calc()">
-          </td>
+          <td class="td-code">FR</td>
+          <td class="td-name">Fringe<div class="td-name-sub">Applied to DL</div></td>
+          <td class="td-rate"><div class="input-wrap"><input type="number" id="fr_r" value="30.00" min="0" max="999" step="0.01" inputmode="decimal" oninput="calc()"><span class="pct-sym">%</span></div></td>
+          <td class="td-amount" id="fr_v">0.3000</td>
         </tr>
-
-        <!-- FR -->
         <tr>
-          <td class="code-cell">FR</td>
-          <td class="name-cell">
-            Fringe
-            <div class="name-sub">Applied to DL</div>
-          </td>
-          <td class="rate-cell">
-            <div class="rate-input-wrap">
-              <input type="number" class="rate-pct" id="fr_r" value="30.00" min="0" max="999" step="0.01" oninput="calc()">
-              <span class="pct-sym">%</span>
-            </div>
-          </td>
-          <td class="value-cell" id="fr_v">0.3000</td>
+          <td class="td-code">OH</td>
+          <td class="td-name">Overhead<div class="td-name-sub">Applied to DL + FR</div></td>
+          <td class="td-rate"><div class="input-wrap"><input type="number" id="oh_r" value="2.00" min="0" max="999" step="0.01" inputmode="decimal" oninput="calc()"><span class="pct-sym">%</span></div></td>
+          <td class="td-amount" id="oh_v">0.0260</td>
         </tr>
-
-        <!-- OH -->
         <tr>
-          <td class="code-cell">OH</td>
-          <td class="name-cell">
-            Overhead
-            <div class="name-sub">Applied to DL + FR</div>
-          </td>
-          <td class="rate-cell">
-            <div class="rate-input-wrap">
-              <input type="number" class="rate-pct" id="oh_r" value="2.00" min="0" max="999" step="0.01" oninput="calc()">
-              <span class="pct-sym">%</span>
-            </div>
-          </td>
-          <td class="value-cell" id="oh_v">0.0260</td>
+          <td class="td-code">G&amp;A</td>
+          <td class="td-name">G&amp;A<div class="td-name-sub">Applied to DL + FR + OH</div></td>
+          <td class="td-rate"><div class="input-wrap"><input type="number" id="ga_r" value="15.00" min="0" max="999" step="0.01" inputmode="decimal" oninput="calc()"><span class="pct-sym">%</span></div></td>
+          <td class="td-amount" id="ga_v">0.1989</td>
         </tr>
-
-        <!-- G&A -->
+        <tr class="row-subtotal no-rate">
+          <td class="td-code">FBLC</td>
+          <td class="td-name">Fully Burdened Labor Cost<div class="td-name-sub">DL + FR + OH + G&amp;A</div></td>
+          <td class="td-rate"></td>
+          <td class="td-amount" id="fblc_v">1.5249</td>
+        </tr>
         <tr>
-          <td class="code-cell">G&amp;A</td>
-          <td class="name-cell">
-            G&amp;A
-            <div class="name-sub">Applied to DL + FR + OH</div>
-          </td>
-          <td class="rate-cell">
-            <div class="rate-input-wrap">
-              <input type="number" class="rate-pct" id="ga_r" value="15.00" min="0" max="999" step="0.01" oninput="calc()">
-              <span class="pct-sym">%</span>
-            </div>
-          </td>
-          <td class="value-cell" id="ga_v">0.1989</td>
+          <td class="td-code">FEE</td>
+          <td class="td-name">Fee<div class="td-name-sub">Applied to FBLC</div></td>
+          <td class="td-rate"><div class="input-wrap"><input type="number" id="fee_r" value="8.00" min="0" max="999" step="0.01" inputmode="decimal" oninput="calc()"><span class="pct-sym">%</span></div></td>
+          <td class="td-amount" id="fee_v">0.1220</td>
         </tr>
-
-        <!-- FBLC subtotal -->
-        <tr class="subtotal-row">
-          <td class="code-cell">FBLC</td>
-          <td class="name-cell">
-            Fully Burdened Labor Cost
-            <div class="name-sub">DL + FR + OH + G&amp;A</div>
-          </td>
-          <td class="rate-cell"></td>
-          <td class="value-cell" id="fblc_v">1.5249</td>
+        <tr class="row-total no-rate">
+          <td class="td-code">FBLF</td>
+          <td class="td-name">Fully Burdened Labor with Fee<div class="td-name-sub">Billing Rate to Government</div></td>
+          <td class="td-rate"></td>
+          <td class="td-amount" id="fblf_v">1.6469</td>
         </tr>
-
-        <!-- FEE -->
-        <tr>
-          <td class="code-cell">FEE</td>
-          <td class="name-cell">
-            Fee
-            <div class="name-sub">Applied to FBLC</div>
-          </td>
-          <td class="rate-cell">
-            <div class="rate-input-wrap">
-              <input type="number" class="rate-pct" id="fee_r" value="8.00" min="0" max="999" step="0.01" oninput="calc()">
-              <span class="pct-sym">%</span>
-            </div>
-          </td>
-          <td class="value-cell" id="fee_v">0.1220</td>
-        </tr>
-
-        <!-- FBLF total -->
-        <tr class="total-row">
-          <td class="code-cell">FBLF</td>
-          <td class="name-cell">
-            Fully Burdened Labor with Fee
-            <div style="font-size:11px;color:var(--silver);margin-top:2px;">Billing Rate to Government</div>
-          </td>
-          <td class="rate-cell"></td>
-          <td class="value-cell" id="fblf_v">1.6469</td>
-        </tr>
-
       </tbody>
     </table>
-
-    <div class="multiplier-banner">
+    <div class="mult-banner">
       <div>
         <div class="mult-label">Wrap Rate Multiplier</div>
         <div class="mult-value" id="mult_v">1.6469&times;</div>
       </div>
-      <div style="text-align:right;">
+      <div>
         <div class="mult-explain" id="mult_explain">Every $1.00 of direct labor bills at $1.6469 to the government</div>
       </div>
     </div>
@@ -497,8 +177,8 @@
     <ol>
       <li>Start with <strong>Direct Labor = 1.0000</strong> to calculate your wrap rate multiplier.</li>
       <li>Adjust the rate percentages to match your actual indirect rates.</li>
-      <li>The <strong>FBLC</strong> (Fully Burdened Labor Cost) is your break-even floor — the minimum you must recover before any profit.</li>
-      <li>Add your <strong>Fee</strong> on top of FBLC to arrive at your <strong>Billing Rate to the Government</strong> (FBLF).</li>
+      <li><strong>FBLC</strong> (Fully Burdened Labor Cost) is your break-even floor — the minimum you must recover before any profit.</li>
+      <li>Add your <strong>Fee</strong> on top of FBLC to get your <strong>Billing Rate to the Government</strong> (FBLF).</li>
       <li>Once you know your multiplier, replace 1.0000 with any hourly wage to see the fully-loaded billing rate for that employee.</li>
     </ol>
   </div>
@@ -506,20 +186,15 @@
   <div class="footer">
     &copy; 2026 Solvability LLC &nbsp;|&nbsp; <a href="https://solvability.com">solvability.com</a> &nbsp;|&nbsp; jenny@solvability.com
   </div>
-
 </div>
-
 <script>
 function fmt4(n) { return n.toFixed(4); }
-function fmtPct(n) { return n.toFixed(2) + '%'; }
-
 function calc() {
   var dl    = parseFloat(document.getElementById('dl').value)    || 0;
   var fr_r  = (parseFloat(document.getElementById('fr_r').value)  || 0) / 100;
   var oh_r  = (parseFloat(document.getElementById('oh_r').value)  || 0) / 100;
   var ga_r  = (parseFloat(document.getElementById('ga_r').value)  || 0) / 100;
   var fee_r = (parseFloat(document.getElementById('fee_r').value) || 0) / 100;
-
   var fr   = dl * fr_r;
   var oh   = (dl + fr) * oh_r;
   var ga   = (dl + fr + oh) * ga_r;
@@ -527,7 +202,6 @@ function calc() {
   var fee  = fblc * fee_r;
   var fblf = fblc + fee;
   var mult = dl > 0 ? fblf / dl : 0;
-
   document.getElementById('fr_v').textContent   = fmt4(fr);
   document.getElementById('oh_v').textContent   = fmt4(oh);
   document.getElementById('ga_v').textContent   = fmt4(ga);
@@ -535,18 +209,14 @@ function calc() {
   document.getElementById('fee_v').textContent  = fmt4(fee);
   document.getElementById('fblf_v').textContent = fmt4(fblf);
   document.getElementById('mult_v').textContent = fmt4(mult) + '\u00d7';
-
-  if (dl === 1) {
-    document.getElementById('mult_explain').textContent =
-      'Every $1.00 of direct labor bills at $' + fmt4(fblf) + ' to the government';
+  if (Math.abs(dl - 1) < 0.0001) {
+    document.getElementById('mult_explain').textContent = 'Every $1.00 of direct labor bills at $' + fmt4(fblf) + ' to the government';
   } else if (dl > 0) {
-    document.getElementById('mult_explain').textContent =
-      '$' + fmt4(dl) + '/hr direct labor \u2192 $' + fmt4(fblf) + '/hr billing rate (' + fmt4(mult) + '\u00d7 multiplier)';
+    document.getElementById('mult_explain').textContent = '$' + fmt4(dl) + '/hr direct labor \u2192 $' + fmt4(fblf) + '/hr billing rate (' + fmt4(mult) + '\u00d7 multiplier)';
   } else {
     document.getElementById('mult_explain').textContent = 'Enter a Direct Labor amount to calculate';
   }
 }
-
 calc();
 </script>
 </body>
