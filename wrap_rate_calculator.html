@@ -326,10 +326,27 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 600px) {
+    body { padding: 1rem 0.5rem; }
     .calc-table thead th:nth-child(3) { display: none; }
     .calc-table td.rate-cell { display: none; }
     .card-header-hint { display: none; }
+    .calc-table td { padding: 0.6rem 0.6rem; }
+    .calc-table thead th { padding: 0.5rem 0.6rem; }
+    .code-cell { width: 36px; font-size: 10px; }
+    .name-cell { font-size: 12px; }
+    .name-sub { font-size: 10px; }
+    .value-cell { width: 90px; font-size: 12px; }
+    input.dl-input { width: 72px; font-size: 12px; }
+    .multiplier-banner { flex-direction: column; align-items: flex-start; gap: 0.4rem; padding: 0.75rem 1rem; }
+    .mult-value { font-size: 18px; }
+    .title { font-size: 1.4rem; }
+    .subtitle { font-size: 13px; }
+    .card-header { padding: 0.75rem 1rem; }
+    .instructions { padding: 1rem; }
+    .instructions ol { font-size: 12px; }
+    .multiplier-banner { text-align: left; }
+    .mult-explain { font-size: 11px; }
   }
 </style>
 </head>
