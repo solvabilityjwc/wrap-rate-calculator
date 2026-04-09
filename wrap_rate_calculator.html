@@ -192,8 +192,14 @@
       <li>Once you know your multiplier, replace 1.0000 with any hourly wage to see the fully-loaded billing rate for that employee.</li>
     </ol>
   </div>
+  <div style="background:#0f1f3d;border-radius:12px;padding:1.5rem;text-align:center;margin-bottom:1rem;">
+    <div style="font-family:'Segoe UI',sans-serif;font-size:1.1rem;font-weight:700;color:#ffffff;margin-bottom:0.5rem;">Stop Guessing. Start Knowing.</div>
+    <div style="font-family:'Segoe UI',sans-serif;font-size:13px;color:#a8b8cc;margin-bottom:1rem;line-height:1.6;">Now that you know your wrap rate, let's talk about what it means for your bids and your business.</div>
+    <a href="https://api.growthhub365.com/widget/bookings/free-discovery-call-all" target="_blank" style="display:inline-block;background:#1a8a8a;color:#ffffff;font-family:'Segoe UI',sans-serif;font-size:14px;font-weight:500;padding:12px 28px;border-radius:8px;text-decoration:none;">Schedule your 15 Minute Discovery Call</a>
+    <div style="font-family:'Segoe UI',sans-serif;font-size:12px;color:#a8b8cc;margin-top:0.75rem;">Or text Jenny at 256-882-6276</div>
+  </div>
   <div class="footer">
-    &copy; 2026 Solvability LLC &nbsp;|&nbsp; <a href="https://solvability.com">solvability.com</a> &nbsp;|&nbsp; jenny@solvability.com
+    &copy; 2026 Solvability LLC &nbsp;|&nbsp; <a href="https://solvability.com">solvability.com</a> &nbsp;|&nbsp; <a href="mailto:jenny@solvability.com">jenny@solvability.com</a>
   </div>
 </div>
 <div id="pwab" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#005082;color:#D4EEF1;padding:14px 16px;font-family:'Segoe UI',sans-serif;font-size:13px;z-index:9999;align-items:center;justify-content:space-between;gap:12px;">
@@ -247,12 +253,4 @@ function calc() {
   if (Math.abs(dl - 1) < 0.0001) {
     document.getElementById('mult_explain').textContent = 'Every $1.00 of direct labor bills at $' + fmt4(fblf) + ' to the government';
   } else if (dl > 0) {
-    document.getElementById('mult_explain').textContent = '$' + fmt4(dl) + '/hr direct labor \u2192 $' + fmt4(fblf) + '/hr billing rate (' + fmt4(mult) + '\u00d7 multiplier)';
-  } else {
-    document.getElementById('mult_explain').textContent = 'Enter a Direct Labor amount to calculate';
-  }
-}
-calc();
-</script>
-</body>
-</html>
+    document.getElementById('mult_explain').textContent = '$' + fmt4(dl) + '/hr direct labor \u2
