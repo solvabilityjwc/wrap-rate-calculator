@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solvability Wrap Rate Calculator</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #005082; --teal: #0F8796; --teal-l: #3db8c8;
+    --teal-bg: #D4EEF1; --silver: #a8c4cc; --cream: #F5F5F2;
+    --dark: #002d47; --mid: #4a6070; --light: #c8dfe6; --white: #ffffff;
+  }
+  body { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--cream); color: var(--dark); min-height: 100vh; padding: 1.5rem 1rem 3rem; }
+  .page { max-width: 600px; margin: 0 auto; }
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
+  .logo-img { height: 36px; width: auto; }
+  .title { font-family: Georgia, serif; font-size: clamp(1.4rem, 5vw, 2rem); color: var(--navy); line-height: 1.2; margin-bottom: 0.4rem; }
+  .subtitle { font-size: 13px; color: var(--mid); line-height: 1.6; margin-bottom: 1.5rem; }
+  .card { background: var(--white); border-radius: 14px; border: 1px solid var(--light); overflow: hidden; margin-bottom: 1rem; }
+  .card-header { background: var(--navy); padding: 0.85rem 1.25rem; }
+  .card-header-title { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--silver); }
+  .card-header-hint { font-size: 11px; color: var(--teal-l); font-style: italic; margin-top: 2px; }
+  .calc-table { width: 100%; border-collapse: collapse; }
+  .calc-table .row-head { background: var(--teal-bg); }
+  .calc-table .row-head th { padding: 0.5rem 0.75rem; font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal); text-align: left; }
+  .calc-table .row-head th:last-child { text-align: right; }
+  .calc-table .row-head th.th-rate { text-align: right; }
+  .calc-table tr { border-bottom: 1px solid var(--light); }
+  .calc-table tr:last-child { border-bottom: none; }
+  .calc-table td { padding: 0.75rem 0.75rem; vertical-align: middle; }
+  .td-code { font-family: 'Courier New', monospace; font-size: 11px; font-weight: 500; color: var(--teal); width: 52px; padding-left: 1rem !important; }
+  .td-name { font-size: 13px; color: var(--dark); }
+  .td-name-sub { font-size: 11px; color: var(--mid); margin-top: 2px; }
+  .td-rate { width: 130px; padding-right: 0.5rem !important; }
+  .td-amount { font-family: 'Courier New', monospace; font-size: 13px; font-weight: 500; color: var(--dark); text-align: right; width: 110px; padding-right: 1rem !important; }
+  .input-wrap { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+  input[type="number"] {
+    font-family: 'Courier New', monospace; font-size: 14px; font-weight: 500; color: var(--dark);
+    background: var(--white); border: 1.5px solid var(--light); border-radius: 6px;
+    padding: 7px 8px; text-align: right; outline: none; width: 100%;
+    -moz-appearance: textfield; min-height: 42px; touch-action: manipulation;
+  }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  input[type="number"]:focus { border-color: var(--teal); }
+  input.dl-input { font-size: 15px; }
+  .pct-sym { font-family: 'Courier New', monospace; font-size: 12px; color: var(--mid); flex-shrink: 0; }
+  .row-subtotal { background: var(--teal-bg) !important; border-bottom: 2px solid var(--teal) !important; }
+  .row-subtotal .td-code { color: var(--teal); }
+  .row-subtotal .td-name { font-weight: 500; color: var(--navy); }
+  .row-subtotal .td-amount { color: var(--navy); font-size: 14px; }
+  .row-total { background: var(--navy) !important; }
+  .row-total .td-code { color: var(--teal-l); }
+  .row-total .td-name { color: var(--white); font-weight: 500; }
+  .row-total .td-name-sub { color: var(--silver); }
+  .row-total .td-amount { color: var(--teal-l); font-size: 15px; }
+  .mult-banner { background: var(--teal-bg); border-top: 1px solid var(--light); padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+  .mult-label { font-size: 11px; color: var(--mid); letter-spacing: 0.04em; text-transform: uppercase; }
+  .mult-value { font-family: 'Courier New', monospace; font-size: 24px; font-weight: 500; color: var(--navy); }
+  .mult-explain { font-size: 12px; color: var(--teal); font-style: italic; }
+  .instructions { background: var(--white); border-radius: 14px; border: 1px solid var(--light); padding: 1.2rem 1.25rem; margin-bottom: 1rem; }
+  .instructions h3 { font-family: Georgia, serif; font-size: 15px; color: var(--navy); margin-bottom: 0.6rem; }
+  .instructions ol { padding-left: 1.2rem; color: var(--mid); font-size: 13px; line-height: 1.9; }
+  .footer { text-align: center; font-size: 12px; color: var(--mid); }
+  .footer a { color: var(--teal); text-decoration: none; }
+  @media (max-width: 520px) {
+    .card-header-hint { display: none; }
+    .calc-table .row-head { display: none; }
+    .calc-table tr { display: block; padding: 0.75rem 1rem; border-bottom: 1px solid var(--light); }
+    .calc-table tr:last-child { border-bottom: none; }
+    .calc-table td { display: inline-block; padding: 0 !important; border: none; }
+    .td-code { display: inline-block; font-size: 11px; margin-right: 6px; padding-left: 0 !important; vertical-align: middle; }
+    .td-name { display: inline-block; font-size: 13px; vertical-align: middle; }
+    .td-name-sub { font-size: 11px; }
+    .td-rate { display: block !important; width: 100%; margin-top: 8px; padding: 0 !important; }
+    .td-amount { display: block !important; width: 100%; text-align: left !important; margin-top: 6px; padding: 0 !important; font-size: 15px; }
+    .no-rate .td-amount { display: inline-block !important; width: auto; margin-top: 0; margin-left: 8px; vertical-align: middle; font-size: 14px; }
+    .input-wrap { justify-content: flex-start; }
+    input[type="number"] { font-size: 16px; min-height: 48px; }
+    .mult-banner { flex-direction: column; align-items: flex-start; }
+    .mult-value { font-size: 20px; }
+    .row-subtotal td, .row-total td { display: inline !important; }
+    .row-subtotal .td-name-sub, .row-total .td-name-sub { display: block; }
+    .row-subtotal .td-amount, .row-total .td-amount { float: right; margin-top: -1.4rem; }
+  }
+</style>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Wrap Rate">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#005082">
+</head>
+<body>
+<div class="page">
+  <div style="font-size:10px;color:#a8c4cc;text-align:right;padding-right:4px;">v28.002</div>
+  <div class="logo-row">
+    <span style="font-weight:600;font-size:14px;color:var(--navy);letter-spacing:0.05em;">SOLVABILITY</span>
+  </div>
+  <h1 class="title">Wrap Rate Calculator</h1>
+  <p class="subtitle">Enter 1.0000 under Direct Labor to calculate your multiplier. Then replace 1.0000 with your actual hourly rate to see your Billing Rate to the Government.</p>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-title">GovCon Indirect Rate Stack</div>
+      <div class="card-header-hint">Start with DL = 1.0000 to find your multiplier</div>
+    </div>
+    <table class="calc-table">
+      <thead>
+        <tr class="row-head">
+          <th class="td-code">Code</th>
+          <th class="td-name">Description</th>
+          <th class="th-rate td-rate">Rate</th>
+          <th class="td-amount">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="no-rate">
+          <td class="td-code">DL</td>
+          <td class="td-name">Direct Labor<div class="td-name-sub">Base hourly wage</div></td>
+          <td class="td-rate"></td>
+          <td class="td-amount"><input type="number" class="dl-input" id="dl" value="1" min="0" step="0.01" inputmode="decimal" onfocus="clearOnFocus(this)" oninput="calc()"></td>
+        </tr>
+        <tr>
+          <td class="td-code">FR</td>
+          <td class="td-name">Fringe<div class="td-name-sub">Applied to DL</div></td>
+          <td class="td-rate"><div class="input-wrap"><input type="number" id="fr_r" value="21.58" min="0" max="999" step="0.01" inputmode="decimal" onfocus="clearOnFocus(this)" oninput="calc()" onblur="fmtRate(this)"><span class="pct-sym">%</span></div></td>
+          <td class="td-amount" id="fr_v">0.2158</td>
+        </tr>
+        <tr>
+          <td class="td-code">OH</td>
+          <td class="td-name">Overhead<div class="td-name-sub">Applied to DL + FR</div></td>
+          <td class="td-rate"><div class="input-wrap"><input type="number" id="oh_r" value="2.00" min="0" max="999" step="0.01" inputmode="decimal" onfocus="clearOnFocus(this)" oninput="calc()" onblur="fmtRate(this)"><span class="pct-sym">%</span></div></td>
+          <td class="td-amount" id="oh_v">0.0243</td>
+        </tr>
+        <tr>
+          <td class="td-code">G&amp;A</td>
+          <td class="td-name">G&amp;A<div class="td-name-sub">Applied to DL + FR + OH</div></td>
+          <td class="td-rate"><div class="input-wrap"><input type="number" id="ga_r" value="12.00" min="0" max="999" step="0.01" inputmode="decimal" onfocus="clearOnFocus(this)" oninput="calc()" onblur="fmtRate(this)"><span class="pct-sym">%</span></div></td>
+          <td class="td-amount" id="ga_v">0.1488</td>
+        </tr>
+        <tr class="row-subtotal no-rate">
+          <td class="td-code">FBLC</td>
+          <td class="td-name">Fully Burdened Labor Cost<div class="td-name-sub">DL + FR + OH + G&amp;A</div></td>
+          <td class="td-rate"></td>
+          <td class="td-amount" id="fblc_v">1.3889</td>
+        </tr>
+        <tr>
+          <td class="td-code">FEE</td>
+          <td class="td-name">Fee<div class="td-name-sub">Applied to FBLC</div></td>
+          <td class="td-rate"><div class="input-wrap"><input type="number" id="fee_r" value="8.00" min="0" max="999" step="0.01" inputmode="decimal" onfocus="clearOnFocus(this)" oninput="calc()" onblur="fmtRate(this)"><span class="pct-sym">%</span></div></td>
+          <td class="td-amount" id="fee_v">0.1111</td>
+        </tr>
+        <tr class="row-total no-rate">
+          <td class="td-code">FBLF</td>
+          <td class="td-name">Fully Burdened Labor with Fee<div class="td-name-sub">Billing Rate to Government</div></td>
+          <td class="td-rate"></td>
+          <td class="td-amount" id="fblf_v">1.5000</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="mult-banner">
+      <div>
+        <div class="mult-label">Wrap Rate Multiplier</div>
+        <div class="mult-value" id="mult_v">1.5000&times;</div>
+      </div>
+      <div>
+        <div class="mult-explain" id="mult_explain">Every $1.00 of direct labor bills at $1.5000 to the government</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="instructions">
+    <h3>How to use this calculator</h3>
+    <ol>
+      <li>Start with <strong>Direct Labor = 1.0000</strong> to calculate your wrap rate multiplier.</li>
+      <li>Adjust the rate percentages to match your actual indirect rates.</li>
+      <li><strong>FBLC</strong> (Fully Burdened Labor Cost) is your break-even floor — the minimum you must recover before any profit.</li>
+      <li>Add your <strong>Fee</strong> on top of FBLC to get your <strong>Billing Rate to the Government</strong> (FBLF).</li>
+      <li>Once you know your multiplier, replace 1.0000 with any hourly wage to see the fully-loaded billing rate for that employee.</li>
+    </ol>
+  </div>
+
+  <div style="background:#0f1f3d;border-radius:12px;padding:1.5rem;text-align:center;margin-bottom:1rem;">
+    <div style="font-family:'Segoe UI',sans-serif;font-size:1.1rem;font-weight:700;color:#ffffff;margin-bottom:0.5rem;">Stop Guessing. Start Knowing.</div>
+    <div style="font-family:'Segoe UI',sans-serif;font-size:13px;color:#a8b8cc;margin-bottom:1rem;line-height:1.6;">Now that you know your wrap rate, let's talk about what it means for your bids and your business.</div>
+    <a href="https://api.growthhub365.com/widget/booking/yyjbjMWDiEm88eKAaQIP" target="_blank" style="display:inline-block;background:#1a8a8a;color:#ffffff;font-family:'Segoe UI',sans-serif;font-size:14px;font-weight:500;padding:12px 28px;border-radius:8px;text-decoration:none;">Schedule your 15 Minute Discovery Call</a>
+  </div>
+
+  <div class="footer">
+    &copy; 2026 Solvability &nbsp;|&nbsp; <a href="https://solvability.com">solvability.com</a>
+  </div>
+</div>
+
+<script>
+function fmt4(n) { return n.toFixed(4); }
+
+function clearOnFocus(el) { el.select(); }
+
+function fmtRate(el) {
+  var v = parseFloat(el.value);
+  if (!isNaN(v)) el.value = v.toFixed(2);
+}
+
+function calc() {
+  var dl    = parseFloat(document.getElementById('dl').value)    || 0;
+  var fr_r  = (parseFloat(document.getElementById('fr_r').value)  || 0) / 100;
+  var oh_r  = (parseFloat(document.getElementById('oh_r').value)  || 0) / 100;
+  var ga_r  = (parseFloat(document.getElementById('ga_r').value)  || 0) / 100;
+  var fee_r = (parseFloat(document.getElementById('fee_r').value) || 0) / 100;
+
+  var fr   = dl * fr_r;
+  var oh   = (dl + fr) * oh_r;
+  var ga   = (dl + fr + oh) * ga_r;
+  var fblc = dl + fr + oh + ga;
+  var fee  = fblc * fee_r;
+  var fblf = fblc + fee;
+  var mult = dl > 0 ? fblf / dl : 0;
+
+  document.getElementById('fr_v').textContent   = fmt4(fr);
+  document.getElementById('oh_v').textContent   = fmt4(oh);
+  document.getElementById('ga_v').textContent   = fmt4(ga);
+  document.getElementById('fblc_v').textContent = fmt4(fblc);
+  document.getElementById('fee_v').textContent  = fmt4(fee);
+  document.getElementById('fblf_v').textContent = fmt4(fblf);
+  document.getElementById('mult_v').textContent = fmt4(mult) + '\u00d7';
+
+  if (Math.abs(dl - 1) < 0.0001) {
+    document.getElementById('mult_explain').textContent =
+      'Every $1.00 of direct labor bills at $' + fmt4(fblf) + ' to the government';
+  } else if (dl > 0) {
+    document.getElementById('mult_explain').textContent =
+      '$' + fmt4(dl) + '/hr direct labor bills at $' + fmt4(fblf) + '/hr to the government';
+  } else {
+    document.getElementById('mult_explain').textContent = 'Enter a Direct Labor amount to see your billing rate';
+  }
+}
+
+// Run on load to initialize display
+calc();
+</script>
+</body>
+</html>
